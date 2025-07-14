@@ -1,0 +1,207 @@
+.roulette-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 1rem;
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+.roulette-wheel {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  border: 12px solid #2a2a2a;
+  box-shadow: 
+    0 0 0 12px #333,
+    0 0 20px rgba(0, 0, 0, 0.5),
+    inset 0 0 50px rgba(0, 0, 0, 0.5);
+  transform-origin: center center;
+  transition: transform 0s ease-out;
+  will-change: transform;
+}
+
+.roulette-wheel.spinning {
+  transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+}
+
+.wheel-segment {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 50%;
+  transform-origin: bottom center;
+}
+
+.wheel-segment::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -15px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.wheel-segment.red::before {
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.wheel-segment.black::before {
+  background: linear-gradient(135deg, #444444, #000000);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.roulette-marker {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  z-index: 10;
+  filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+}
+
+.results-history {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  max-width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: #666 #333;
+}
+
+.history-item {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.history-item:hover {
+  transform: scale(1.1);
+}
+
+.history-item.red {
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+}
+
+.history-item.black {
+  background: linear-gradient(135deg, #444444, #000000);
+}
+
+/* Custom scrollbar for WebKit browsers */
+.results-history::-webkit-scrollbar {
+  height: 6px;
+}
+
+.results-history::-webkit-scrollbar-track {
+  background: #333;
+  border-radius: 3px;
+}
+
+.results-history::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 3px;
+}
+
+.results-history::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
+
+@media (max-width: 600px) {
+  .roulette-wheel {
+    width: 300px;
+    height: 300px;
+    border-width: 8px;
+  }
+
+  .wheel-segment::before {
+    width: 20px;
+    height: 20px;
+    left: -10px;
+  }
+
+  .roulette-marker {
+    width: 30px;
+    height: 30px;
+    top: -15px;
+  }
+
+  .history-item {
+    width: 30px;
+    height: 30px;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .roulette-wheel {
+    width: 250px;
+    height: 250px;
+    border-width: 6px;
+  }
+
+  .wheel-segment::before {
+    width: 16px;
+    height: 16px;
+    left: -8px;
+  }
+
+  .roulette-marker {
+    width: 24px;
+    height: 24px;
+    top: -12px;
+  }
+
+  .history-item {
+    width: 25px;
+    height: 25px;
+    font-size: 0.6rem;
+  }
+}
+
+/* Add glow effect for active state */
+.roulette-wheel.spinning::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 50%;
+  background: transparent;
+  border: 5px solid rgba(255, 255, 255, 0.1);
+  animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+}

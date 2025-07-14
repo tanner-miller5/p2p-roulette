@@ -1,0 +1,138 @@
+.betting-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.bet-amount-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bet-amount-label {
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.bet-amount-input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #2a2a2a;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.bet-amount-input {
+  flex: 1;
+  padding: 10px;
+  font-size: 18px;
+  text-align: center;
+  background: #333;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #ffffff;
+}
+
+.bet-amount-adjust {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  background: #444;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.bet-amount-adjust:hover:not(:disabled) {
+  background: #555;
+}
+
+.bet-amount-adjust:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.betting-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.bet-button {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.bet-button:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+.bet-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bet-button.red {
+  background: linear-gradient(to bottom, #d32f2f, #b71c1c);
+  color: white;
+}
+
+.bet-button.black {
+  background: linear-gradient(to bottom, #212121, #000000);
+  color: white;
+}
+
+.bet-button-text {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.bet-total {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.betting-error {
+  padding: 10px;
+  background-color: rgba(255, 0, 0, 0.1);
+  border-left: 4px solid #ff4444;
+  border-radius: 4px;
+  color: #ff4444;
+  font-size: 14px;
+}
+
+@media (max-width: 480px) {
+  .betting-buttons {
+    flex-direction: column;
+  }
+
+  .bet-button {
+    padding: 12px;
+  }
+
+  .bet-button-text {
+    font-size: 16px;
+  }
+
+  .bet-total {
+    font-size: 12px;
+  }
+}

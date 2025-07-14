@@ -1,0 +1,50 @@
+.game-timer {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+  background-color: #333;
+  border-radius: 6px;
+}
+
+.game-status {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.timer-count {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 4px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.timer-normal {
+  color: #4CAF50;
+}
+
+.timer-warning {
+  color: #FFC107;
+  animation: pulse 1s infinite;
+}
+
+.timer-critical {
+  color: #FF5252;
+  animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}

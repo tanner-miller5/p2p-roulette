@@ -1,0 +1,149 @@
+/* client/src/pages/Game/Game.css */
+.game-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.game-status {
+  text-align: center;
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+}
+
+.betting-area {
+  margin-bottom: 30px;
+}
+
+.bet-input {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.bet-input input {
+  padding: 10px;
+  font-size: 1.2em;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #fff;
+  color: #000;
+}
+
+.error-message {
+  color: #ff4444;
+  margin-top: 5px;
+}
+
+.bet-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.bet-button {
+  padding: 20px 40px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  color: white;
+  width: 200px;
+}
+
+.bet-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bet-button:not(:disabled):hover {
+  transform: scale(1.05);
+}
+
+.bet-button.red {
+  background-color: #D32F2F;
+}
+
+.bet-button.black {
+  background-color: #212121;
+}
+
+.total-bets {
+  font-size: 0.8em;
+  margin-top: 5px;
+}
+
+.results-history {
+  text-align: center;
+}
+
+.results-grid {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.result-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.result-circle.red {
+  background-color: #D32F2F;
+}
+
+.result-circle.black {
+  background-color: #212121;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.username {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #FFD700; /* Gold color for username */
+  margin-bottom: 4px;
+}
+
+.user-balance {
+  font-size: 1em;
+  color: #ffffff;
+}
+
+.sign-out-button {
+  padding: 8px 16px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.sign-out-button:hover {
+  background-color: #cc0000;
+}
