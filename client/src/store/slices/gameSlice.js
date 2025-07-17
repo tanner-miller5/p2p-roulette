@@ -13,8 +13,8 @@ const initialState = {
 const gameSlice = createSlice({
   name: 'game',
   initialState: {
-    status: 'waiting',
-    timer: 30,
+    status: null,
+    timer: 0,
     bets: {
       red: {},
       black: {}
@@ -23,14 +23,10 @@ const gameSlice = createSlice({
   },
   reducers: {
     setGameState: (state, action) => {
-      const newState = { ...action.payload };
-      if (newState.bets) {
-        newState.bets = {
-          red: newState.bets.red || {},
-          black: newState.bets.black || {}
-        };
-      }
-      return { ...state, ...newState };
+      return {
+        ...state,
+        ...action.payload
+      };
     },
     resetGame: () => initialState,
     addBet: (state, action) => {

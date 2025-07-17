@@ -62,8 +62,12 @@ class SocketService {
 
     this.socket.on('gameState', (state) => {
       console.log('Received game state:', state);
+      if (state && state.timer !== undefined) {
+        console.log('Timer value:', state.timer);
+      }
       store.dispatch(setGameState(state));
     });
+
 
     this.socket.on('error', (error) => {
       console.error('Socket server error:', error);

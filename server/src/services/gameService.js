@@ -1,10 +1,26 @@
 const { Game, Bet, User, sequelize } = require('../models');
+const { EventEmitter } = require('events');
+let io = null;
 
-class GameService {
+// Add this function to set io instance
+const setIo = (ioInstance) => {
+  io = ioInstance;
+};
+
+
+class GameService extends EventEmitter {
   constructor() {
+    super();
     this.currentGame = null;
     this.timer = null;
     this.initializeGame();
+    // Listen to our own events and broadcast them via Socket.IO
+    this.on('gameState', (state) => {
+      if(io) {
+        io.emit('gameState', state);
+      }
+    });
+
   }
 
   async initializeGame() {
@@ -51,6 +67,9 @@ class GameService {
     this.timer = setInterval(() => {
       if (this.currentGame.timer > 0) {
         this.currentGame.timer--;
+        // Emit timer update to all clients
+        this.emit('gameState', this.getCurrentGame());
+
         if (this.currentGame.timer === 0) {
           this.finishRound();
         }
@@ -64,6 +83,7 @@ class GameService {
     try {
       clearInterval(this.timer);
       this.currentGame.status = 'PROCESSING_BETS';
+      this.emit('gameState', this.getCurrentGame());
 
       // Process all bets in a single transaction
       const result = Math.random() < 0.5 ? 'red' : 'black';
@@ -106,6 +126,9 @@ class GameService {
       }
 
       this.currentGame.result = result;
+      this.currentGame.status = 'RESULTS'; // Add this line
+      this.emit('gameState', this.getCurrentGame());
+
       this.currentGame.lastResults.unshift(result);
       if (this.currentGame.lastResults.length > 10) {
         this.currentGame.lastResults.pop();
@@ -114,7 +137,10 @@ class GameService {
       await transaction.commit();
 
       // Start new round after delay
-      setTimeout(() => this.startNewRound(), 5000);
+      setTimeout(() => {
+        this.startNewRound();
+        this.emit('gameState', this.getCurrentGame());
+      }, 5000);
       return this.getCurrentGame();
     } catch (error) {
       await transaction.rollback();
@@ -197,5 +223,5 @@ class GameService {
     };
   }
 }
-
-module.exports = new GameService();
+const gameService = new GameService();
+module.exports = {gameService, setIo};

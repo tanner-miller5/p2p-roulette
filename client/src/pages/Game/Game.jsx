@@ -195,14 +195,14 @@ const Game = () => {
           <div className="betting-buttons">
             <button
               onClick={() => handleBet('red')}
-              disabled={!gameState || gameState.status !== 'waiting'}
+              disabled={!gameState || gameState.status !== 'BETTING_OPEN'}
               className="bet-button red"
             >
               Bet Red
             </button>
             <button
               onClick={() => handleBet('black')}
-              disabled={!gameState || gameState.status !== 'waiting'}
+              disabled={!gameState || gameState.status !== 'BETTING_OPEN'}
               className="bet-button black"
             >
               Bet Black

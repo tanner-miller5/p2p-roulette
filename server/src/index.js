@@ -5,7 +5,7 @@ const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const userRoutes = require('./routes/userRoutes');
 const gameRoutes = require('./routes/gameRoutes');
-const gameService = require('./services/gameService');
+const {gameService, setIo} = require('./services/gameService');
 require('dotenv').config();
 console.log(process.env.JWT_SECRET);
 const app = express();
@@ -56,6 +56,9 @@ io.on('connection', (socket) => {
   socket.on('joinGame', () => {
     const currentGame = gameService.getCurrentGame();
     socket.emit('gameState', currentGame);
+    // Join game room for future updates
+    socket.join('game');
+
   });
 
   socket.on('placeBet', async ({ amount, betType }) => {
@@ -77,5 +80,8 @@ const PORT = process.env.PORT || 3001;
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+setIo(io);
+
 
 module.exports = { app, httpServer, io };
