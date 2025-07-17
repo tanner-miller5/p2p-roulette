@@ -91,6 +91,7 @@ class UserService {
       include: [
         {
           model: Wallet,
+          as: 'wallet',
           attributes: ['balance']
         }
       ]

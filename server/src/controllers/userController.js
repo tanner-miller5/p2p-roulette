@@ -36,7 +36,7 @@ const validateToken = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    const user = await userService.getUserById(req.user.id);
+    const user = await userService.getProfile(req.user.id);
     res.json({
       username: user.username,
       balance: user.wallet ? user.wallet.balance : 0,

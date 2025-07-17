@@ -3,9 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { login as loginApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import './Login.css';
+import {useDispatch} from "react-redux";
+import {setUsername} from "../../store/slices/userSlice";
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const dispatch = useDispatch();
+  const [username, updateUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,6 +27,7 @@ const Login = () => {
         balance: response.balance,
         token: response.token
       });
+      dispatch(setUsername(username));
       navigate('/game');
     } catch (error) {
       setError(error.message || 'Login failed. Please try again.');
@@ -43,7 +47,7 @@ const Login = () => {
             type="text"
             id="username"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => updateUsername(e.target.value)}
             required
             disabled={loading}
           />
@@ -59,13 +63,16 @@ const Login = () => {
             disabled={loading}
           />
         </div>
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} className="login-button">
           {loading ? 'Logging in...' : 'Login'}
         </button>
+        <div className="register-section">
+          <p>Don&apos;t have an account?</p>
+          <Link to="/register" className="register-button">
+            Register
+          </Link>
+        </div>
       </form>
-      <p>
-        Don&#39;t have an account? <Link to="/register">Register here</Link>
-      </p>
     </div>
   );
 };

@@ -34,4 +34,31 @@ export const register = async (username, password) => {
   }
 };
 
+export const getProfile = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch profile');
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message || 'Error fetching profile');
+  }
+};
+
+
 export default api;

@@ -3,17 +3,20 @@ import { io } from 'socket.io-client';
 import './Game.css';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { clearUserData } from '../../store/slices/userSlice';
+import {clearUserData} from '../../store/slices/userSlice';
 import { useAuth } from '../../context/AuthContext';
 import BetHistory from "../../components/game/BetHistory";
-import BettingButtons from "../../components/game/BettingButtons";
 import RouletteWheel from "../../components/game/RouletteWheel";
 import GameTimer from "../../components/game/GameTimer";
+import {updateBalance} from "../../store/slices/profileSlice";
+import {getProfile} from "../../services/api";
 
 const Game = () => {
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { username, balance } = useSelector((state) => state.user);
+  const { username } = useSelector((state) => state.user);
+  const { balance } = useSelector((state) => state.profile);
   const { logout, isAuthenticated } = useAuth();
   const [socket, setSocket] = useState(null);
   const [gameState, setGameState] = useState({
@@ -28,6 +31,14 @@ const Game = () => {
   });
   const [betAmount, setBetAmount] = useState('');
   const [error, setError] = useState('');
+  const getProfileApi = async () => {
+    const response = await getProfile();
+    console.log(response);
+    dispatch(updateBalance(response.balance));
+  }
+  useEffect(() => {
+    getProfileApi();
+  }, [dispatch]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -133,64 +144,84 @@ const Game = () => {
 
 
   return (
-      <div className="game-container">
-        <div className="game-header">
-          <div className="balance-display">
-            Balance: {balance} RLT
+    <div className="login-container">
+      <div className="login-form game-content">
+        {/* Header Section */}
+        <div className="game-header-wrapper">
+          <div className="game-user-info">
+            <div className="game-user-details">
+              <span className="username">Welcome, {username}</span>
+              <span className="balance">Balance: {balance} RLT</span>
+            </div>
+            <button onClick={handleSignOut} className="sign-out-btn">
+              Sign Out
+            </button>
           </div>
-          <GameTimer
+          <div className="game-status-timer">
+            <GameTimer
               timeLeft={gameState?.timer || 0}
               gameStatus={gameState?.status || 'connecting'}
-          />
-        </div>
-
-        <div className="game-main">
-          <RouletteWheel
-              spinning={gameState?.status === 'spinning'}
-              result={gameState?.result}
-          />
-
-          <div className="betting-section">
-            <div className="bet-amount-control">
-              <label htmlFor="betAmount">Bet Amount:</label>
-              <input
-                  id="betAmount"
-                  type="number"
-                  min="10"
-                  max="1000"
-                  step="10"
-                  value={betAmount}
-                  onChange={handleBetAmountChange}
-                  className="bet-amount-input"
-              />
-              <div className="bet-amount-quick-set">
-                <button onClick={() => setBetAmount(10)}>10</button>
-                <button onClick={() => setBetAmount(50)}>50</button>
-                <button onClick={() => setBetAmount(100)}>100</button>
-                <button onClick={() => setBetAmount(500)}>500</button>
-              </div>
-            </div>
-
-            <BettingButtons
-                onBet={handleBet}
-                disabled={!gameState || gameState.status !== 'waiting'}
-                currentBets={gameState?.bets}
             />
-
-            {error && (
-                <div className="error-message">
-                  {error}
-                </div>
-            )}
           </div>
         </div>
 
-        <div className="game-footer">
-          <BetHistory history={history} />
+        {/* Game Content */}
+        <RouletteWheel
+          spinning={gameState?.status === 'spinning'}
+          result={gameState?.result}
+        />
+
+        <div className="betting-section">
+          <div className="form-group">
+            <label htmlFor="betAmount">Bet Amount:</label>
+            <input
+              id="betAmount"
+              type="number"
+              min="10"
+              max="1000"
+              step="10"
+              value={betAmount}
+              onChange={handleBetAmountChange}
+              className="bet-amount-input"
+            />
+            <div className="quick-bet-buttons">
+              <button onClick={() => setBetAmount(10)} className="quick-bet">10</button>
+              <button onClick={() => setBetAmount(50)} className="quick-bet">50</button>
+              <button onClick={() => setBetAmount(100)} className="quick-bet">100</button>
+              <button onClick={() => setBetAmount(500)} className="quick-bet">500</button>
+            </div>
+          </div>
+
+          <div className="betting-buttons">
+            <button
+              onClick={() => handleBet('red')}
+              disabled={!gameState || gameState.status !== 'waiting'}
+              className="bet-button red"
+            >
+              Bet Red
+            </button>
+            <button
+              onClick={() => handleBet('black')}
+              disabled={!gameState || gameState.status !== 'waiting'}
+              className="bet-button black"
+            >
+              Bet Black
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
+        <div className="history-section">
+          <BetHistory history={gameState.lastResults} />
         </div>
       </div>
+    </div>
   );
-
 };
 
 export default Game;

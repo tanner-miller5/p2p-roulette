@@ -29,6 +29,8 @@ app.use(express.json());
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/game', gameRoutes);
+app.use('/auth', userRoutes);
+
 
 // Socket.IO authentication middleware
 io.use((socket, next) => {
