@@ -4,6 +4,7 @@ import './GameTimer.css';
 
 const GameTimer = ({ timeLeft, status }) => {
   const getStatusDisplay = () => {
+    console.log(status);
     switch (status) {
       case 'BETTING_OPEN':
         return 'Betting Open';
@@ -39,11 +40,6 @@ const GameTimer = ({ timeLeft, status }) => {
 GameTimer.propTypes = {
   timeLeft: PropTypes.number.isRequired,
   status: PropTypes.oneOf(['BETTING_OPEN', 'PROCESSING_BETS', 'RESULTS', '']).isRequired
-};
-
-GameTimer.defaultProps = {
-  timeLeft: 0,
-  status: ''
 };
 
 export default GameTimer;

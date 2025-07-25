@@ -4,22 +4,22 @@ const userSlice = createSlice({
   name: 'user',
   initialState: {
     username: '',
-    balance: 0,
+    userId: ''
   },
   reducers: {
-    updateBalance: (state, action) => {
-      state.balance = action.payload;
-    },
     setUsername: (state, action) => {
       state.username = action.payload;
     },
+    setUserId: (state, action) => {
+      state.userId = action.payload;
+    },
     clearUserData: (state) => {
       state.username = '';
-      state.balance = 0;
+      state.userId = '';
     },
   },
 });
 
-export const { updateBalance, setUsername, clearUserData
+export const { setUsername, clearUserData, setUserId
 } = userSlice.actions;
 export default userSlice.reducer;

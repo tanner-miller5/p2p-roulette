@@ -65,7 +65,17 @@ class SocketService {
       if (state && state.timer !== undefined) {
         console.log('Timer value:', state.timer);
       }
-      store.dispatch(setGameState(state));
+      if (state) {
+        store.dispatch(setGameState({
+          status: state.status,
+          timer: state.timer,
+          bets: state.bets,
+          currentBets: state.currentBets,
+          result: state.result,
+          lastResults: state.lastResults
+        }));
+      }
+
     });
 
 
@@ -106,6 +116,7 @@ class SocketService {
   }
 
   placeBet(betType, amount) {
+    console.log("test")
     if (this.socket?.connected) {
       this.socket.emit('placeBet', { betType, amount });
     } else {

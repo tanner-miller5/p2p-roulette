@@ -19,16 +19,26 @@ const gameSlice = createSlice({
       red: {},
       black: {}
     },
-    result: null
+    currentBets: {
+      red: 0,
+      black: 0
+    },
+    result: []
   },
   reducers: {
     setGameState: (state, action) => {
+      if (!action.payload) return state;
       return {
         ...state,
-        ...action.payload
+        status: action.payload.status,
+        timer: action.payload.timer,
+        bets: action.payload.bets || state.bets,
+        currentBets: action.payload.currentBets || state.currentBets,
+        result: action.payload.result,
+        lastResults: action.payload.lastResults || state.lastResults
       };
     },
-    resetGame: () => initialState,
+    resetGameState: () => initialState,
     addBet: (state, action) => {
       const { betType, amount, userId } = action.payload;
       if (!state.bets[betType]) {
@@ -40,5 +50,5 @@ const gameSlice = createSlice({
   },
 });
 
-export const { setGameState, resetGame, addBet } = gameSlice.actions;
+export const { setGameState, resetGameState, addBet } = gameSlice.actions;
 export default gameSlice.reducer;

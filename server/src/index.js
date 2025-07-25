@@ -1,4 +1,5 @@
 const express = require('express');
+const walletRoutes = require('./routes/walletRoutes');
 const cors = require('cors');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
@@ -30,6 +31,7 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/auth', userRoutes);
+app.use('/api/wallet', walletRoutes);
 
 
 // Socket.IO authentication middleware

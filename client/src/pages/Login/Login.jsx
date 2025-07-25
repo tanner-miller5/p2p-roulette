@@ -4,7 +4,7 @@ import { login as loginApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import './Login.css';
 import {useDispatch} from "react-redux";
-import {setUsername} from "../../store/slices/userSlice";
+import {setUserId, setUsername} from "../../store/slices/userSlice";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -28,6 +28,7 @@ const Login = () => {
         token: response.token
       });
       dispatch(setUsername(username));
+      dispatch(setUserId(response.user.id));
       navigate('/game');
     } catch (error) {
       setError(error.message || 'Login failed. Please try again.');

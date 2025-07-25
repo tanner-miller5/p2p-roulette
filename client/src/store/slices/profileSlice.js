@@ -21,7 +21,6 @@ const profileSlice = createSlice({
     data: null,
     loading: false,
     error: null,
-    balance: 0,
     statistics: {
       totalGames: 0,
       gamesWon: 0,
@@ -30,9 +29,6 @@ const profileSlice = createSlice({
     }
   },
   reducers: {
-    updateBalance: (state, action) => {
-      state.balance = action.payload;
-    },
     updateProfile: (state, action) => {
       state.data = action.data;
       state.error = action.error;
@@ -72,5 +68,5 @@ const profileSlice = createSlice({
   }
 });
 
-export const { clearProfile, updateProfile, updateBalance } = profileSlice.actions;
+export const { clearProfile, updateProfile } = profileSlice.actions;
 export default profileSlice.reducer;

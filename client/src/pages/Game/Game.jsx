@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
+//import { io } from 'socket.io-client';
 import './Game.css';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -8,33 +8,30 @@ import { useAuth } from '../../context/AuthContext';
 import BetHistory from "../../components/game/BetHistory";
 import RouletteWheel from "../../components/game/RouletteWheel";
 import GameTimer from "../../components/game/GameTimer";
-import {updateBalance} from "../../store/slices/profileSlice";
 import {getProfile} from "../../services/api";
+import {addBet} from "../../store/slices/gameSlice";
+//import {store} from "../../store";
+import {useSocket} from "../../hooks/useSocket";
+import { useGameState } from '../../hooks/useGameState';
+import {updateBalance} from "../../store/slices/walletSlice";
+import { getWalletBalance } from '../../services/api';
+
 
 const Game = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { username } = useSelector((state) => state.user);
-  const { balance } = useSelector((state) => state.profile);
+  const { username, userId } = useSelector((state) => state.user);
+  const { balance } = useSelector((state) => state.wallet);
   const { logout, isAuthenticated } = useAuth();
-  const [socket, setSocket] = useState(null);
-  const [gameState, setGameState] = useState({
-    status: 'waiting',
-    timer: 0,
-    bets: {
-      red: {},
-      black: {}
-    },
-    currentBets: { red: 0, black: 0 },
-    lastResults: [],
-  });
+  const {socket} = useSocket();
+  const { placeBet } = useGameState(socket);
+  const gameState = useSelector((state) => state.game);
   const [betAmount, setBetAmount] = useState('');
   const [error, setError] = useState('');
   const getProfileApi = async () => {
     const response = await getProfile();
     console.log(response);
-    dispatch(updateBalance(response.balance));
   }
   useEffect(() => {
     getProfileApi();
@@ -45,6 +42,7 @@ const Game = () => {
       navigate('/login');
       return;
     }
+    /*
 
     const token = localStorage.getItem('token');
     const socketUrl = process.env.REACT_APP_SOCKET_URL || 'http://localhost:3001';
@@ -65,14 +63,14 @@ const Game = () => {
 
     newSocket.on('gameState', (state) => {
       console.log('Received game state:', state);
-      setGameState(prev => ({
+      store.dispatch(setGameState(prev => ({
         ...prev,
         ...state,
         currentBets: {
           red: calculateTotalBets(state.bets?.red || {}),
           black: calculateTotalBets(state.bets?.black || {})
         }
-      }));
+      })));
     });
 
     setSocket(newSocket);
@@ -80,12 +78,13 @@ const Game = () => {
     return () => {
       newSocket.close();
     };
+    */
   }, [isAuthenticated, navigate]);
-
+/*
   const calculateTotalBets = (bets) => {
     return Object.values(bets).reduce((total, bet) => total + (bet.amount || 0), 0);
   };
-
+*/
   const handleSignOut = () => {
     if (socket) {
       socket.disconnect();
@@ -95,28 +94,8 @@ const Game = () => {
     navigate('/login');
   };
 
-  const placeBet = (color) => {
-    if (!socket) return;
-    if (!betAmount || isNaN(betAmount) || betAmount <= 0) {
-      setError('Please enter a valid bet amount');
-      return;
-    }
-
-    socket.emit('placeBet', {
-      amount: parseInt(betAmount),
-      betType: color
-    });
-
-    setBetAmount('');
-  };
-
   const handleBet = (type) => {
-    if (!socket?.connected) {
-      setError('Not connected to game server');
-      return;
-    }
-
-    if (!gameState || gameState.status !== 'waiting') {
+    if (!gameState || gameState.status !== 'BETTING_OPEN') {
       setError('Betting is currently closed');
       return;
     }
@@ -127,12 +106,34 @@ const Game = () => {
     }
 
     try {
-      placeBet(betAmount, type);
+      dispatch(updateBalance(balance - betAmount));
+      dispatch(addBet({
+        betType: type,
+        amount: betAmount,
+        userId: socket.id
+      }));
+
+      placeBet(userId, betAmount, type);
       setError(null);
     } catch (err) {
       setError(err.message);
     }
   };
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const { balance } = await getWalletBalance();
+        dispatch(updateBalance(balance));
+      } catch (error) {
+        console.error('Failed to fetch wallet balance:', error);
+      }
+    };
+
+    fetchBalance();
+  }, [dispatch]);
+
+
 
 
   const handleBetAmountChange = (e) => {
@@ -159,8 +160,8 @@ const Game = () => {
           </div>
           <div className="game-status-timer">
             <GameTimer
-              timeLeft={gameState?.timer || 0}
-              gameStatus={gameState?.status || 'connecting'}
+              timeLeft={gameState?.timer}
+              status={gameState?.status}
             />
           </div>
         </div>

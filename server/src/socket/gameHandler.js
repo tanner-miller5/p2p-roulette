@@ -1,5 +1,6 @@
 const gameStateManager = require('../services/GameStateManager');
 const WalletService = require('../services/walletService');
+const {Bet} = require("../models");
 
 module.exports = (io) => {
   io.on('connection', async (socket) => {
@@ -22,7 +23,7 @@ module.exports = (io) => {
           throw new Error('Betting is not open');
         }
 
-        await WalletService.debit(userId, amount);
+        await WalletService.withdraw(userId, amount);
         const bet = await Bet.create({
           userId,
           gameId: currentGame.id,

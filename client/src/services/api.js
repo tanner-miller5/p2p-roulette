@@ -60,5 +60,15 @@ export const getProfile = async () => {
   }
 };
 
+export const getWalletBalance = async () => {
+  try {
+    const response = await api.get('/api/wallet/balance');
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || 'Failed to fetch balance');
+  }
+};
+
+
 
 export default api;
