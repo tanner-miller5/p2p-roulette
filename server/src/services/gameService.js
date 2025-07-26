@@ -1,4 +1,4 @@
-const { Game, Bet, User, sequelize } = require('../models');
+const { Game, Bet, User, sequelize, Wallet} = require('../models');
 const { EventEmitter } = require('events');
 let io = null;
 
@@ -103,9 +103,9 @@ class GameService extends EventEmitter {
         const bets = Array.from(this.currentGame.bets[betType].entries());
         for (const [userId, bet] of bets) {
           if (!bet.matched) {
-            await User.increment('balance', {
+            await Wallet.increment('balance', {
               by: bet.amount,
-              where: { id: userId },
+              where: { userId },
               transaction
             });
           }
@@ -117,9 +117,9 @@ class GameService extends EventEmitter {
       for (const [userId, bet] of winningBets) {
         if (bet.matched) {
           const winnings = Math.floor(bet.amount * 2 * 0.975); // 2.5% fee
-          await User.increment('balance', {
+          await Wallet.increment('balance', {
             by: winnings,
-            where: { id: userId },
+            where: { userId },
             transaction
           });
         }
@@ -157,25 +157,33 @@ class GameService extends EventEmitter {
       }
 
       const user = await User.findByPk(userId, { transaction });
-      if (!user || user.balance < amount) {
+
+      // Create bet and update user balance in the same transaction
+      // First check balance
+      const wallet = await Wallet.findOne({
+        where: { userId },
+        transaction
+      });
+
+      if (!wallet || wallet.balance < amount) {
         throw new Error('Insufficient balance');
       }
 
-      // Create bet and update user balance in the same transaction
-      await Promise.all([
-        Bet.create({
-          userId,
-          gameId: this.currentGame.id,
-          amount,
-          betType,
-          matched: false
-        }, { transaction }),
-        User.decrement('balance', {
-          by: amount,
-          where: { id: userId },
-          transaction
-        })
-      ]);
+      // Then perform operations sequentially
+      await Wallet.decrement('balance', {
+        by: amount,
+        where: { userId },
+        transaction
+      });
+
+      await Bet.create({
+        userId,
+        gameId: this.currentGame.id,
+        amount,
+        betType,
+        matched: false
+      }, { transaction });
+
 
       if (!this.currentGame.bets[betType]) {
         this.currentGame.bets[betType] = new Map();

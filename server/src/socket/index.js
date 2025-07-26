@@ -1,78 +1,79 @@
-const { Server } = require('socket.io');
-const gameService = require('../services/gameService');
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const WalletService = require('../services/walletService');
+const { gameService } = require('../services/gameService');
+const { Bet } = require('../models');
 
-function initializeSocket(server) {
-  const io = new Server(server, {
-    cors: {
-      origin: process.env.CLIENT_URL || "http://localhost:3000",
-      methods: ["GET", "POST"],
-      credentials: true
-    },
-    transports: ['websocket', 'polling'] // Allow both transports
-  });
+const socketAuth = (socket, next) => {
+  const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return next(new Error('Authentication token missing'));
+  }
 
-  // Add authentication middleware
-  io.use((socket, next) => {
-    const token = socket.handshake.auth.token;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.user = decoded;
+    next();
+  } catch (err) {
+    next(new Error('Invalid token'));
+  }
+};
 
-    if (!token) {
-      return next(new Error('Authentication token missing'));
-    }
+const initializeSocket = (io) => {
+  io.use(socketAuth);
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      socket.user = decoded;
-      next();
-    } catch (err) {
-      next(new Error('Invalid token'));
-    }
-  });
-
-
-  io.on('connection', (socket) => {
+  io.on('connection', async (socket) => {
     console.log('Client connected:', socket.id);
 
     socket.on('joinGame', () => {
+      console.log('joinGame');
       const currentGame = gameService.getCurrentGame();
       socket.emit('gameState', currentGame);
+      socket.join('game');
     });
 
-    // Broadcast game state updates every second
-    const intervalId = setInterval(() => {
-      const currentGame = gameService.getCurrentGame();
-      io.emit('gameState', currentGame);
-    }, 1000);
+    socket.on('placeBet', async ({ userId, amount, betType }) => {
+      console.log('placeBet');
+      try {
+        const currentGame = gameService.getCurrentGame();
+        
+        if (currentGame?.status !== 'BETTING_OPEN') {
+          throw new Error('Betting is not open');
+        }
+
+        // Withdraw funds using WalletService
+        await WalletService.withdraw(userId, amount);
+        console.log('placeBet');
+        console.log(userId);
+        console.log(socket.user.id);
+        // Create bet record
+        await Bet.create({
+          userId: userId,
+          gameId: currentGame.id,
+          amount,
+          betType
+        });
+
+        // Place bet in game service
+        await gameService.placeBet(userId, amount, betType);
+        
+        // Broadcast updated game state
+        const updatedState = gameService.getCurrentGame();
+        io.emit('gameState', updatedState);
+      } catch (error) {
+        socket.emit('error', { message: error.message });
+      }
+    });
 
     socket.on('disconnect', () => {
-      clearInterval(intervalId);
+      console.log('Client disconnected:', socket.id);
     });
   });
 
-  io.on('placeBet', async ({ amount, betType }) => {
-    try {
-      // Validate user has enough balance
-      const user = await User.findByPk(io.user.id);
-      if (!user || user.balance < amount) {
-        throw new Error('Insufficient balance');
-      }
-
-      // Place the bet and update balance
-      await gameService.placeBet(io.user.id, amount, betType);
-
-      // Update user's balance
-      await user.decrement('balance', { by: amount });
-
-      // Emit updated game state and balance
-      io.emit('balanceUpdate', { balance: user.balance - amount });
-      io.emit('gameState', gameService.getCurrentGame());
-    } catch (error) {
-      io.emit('error', { message: error.message });
-    }
+  // Listen for game state changes
+  gameService.on('stateChange', (newState) => {
+    io.emit('gameState', newState);
   });
+};
 
-
-  return io;
-}
-module.exports = initializeSocket;
+module.exports = { initializeSocket };

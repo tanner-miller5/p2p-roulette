@@ -19,6 +19,7 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
+    "debug": "node --inspect src/index.js",
     "test": "jest",
     "lint": "eslint src",
     "init-db": "node src/scripts/initDb.js"

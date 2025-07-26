@@ -11,7 +11,7 @@
   "scripts": {
     "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
     "start:client": "npm run start --workspace=client",
-    "start:server": "npm run dev --workspace=server",
+    "start:server": "npm run debug --workspace=server",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",

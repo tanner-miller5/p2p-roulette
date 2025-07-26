@@ -110,7 +110,7 @@ const Game = () => {
       dispatch(addBet({
         betType: type,
         amount: betAmount,
-        userId: socket.id
+        userId: userId
       }));
 
       placeBet(userId, betAmount, type);

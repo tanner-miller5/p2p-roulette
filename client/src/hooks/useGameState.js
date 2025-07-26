@@ -6,6 +6,7 @@ import {useCallback } from 'react';
 export const useGameState = (socket) => {
   const placeBet = useCallback((userId, amount, betType) => {
     if (socket) {
+      console.log('placeBet');
       socket.emit('placeBet', { userId, amount, betType });
     }
   }, [socket]);
