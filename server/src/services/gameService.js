@@ -82,6 +82,15 @@ class GameService extends EventEmitter {
 
     try {
       clearInterval(this.timer);
+
+      // Add spinning state
+      this.currentGame.status = 'spinning';
+      this.emit('gameState', this.getCurrentGame());
+
+      // Wait for spinning animation
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+
       this.currentGame.status = 'PROCESSING_BETS';
       this.emit('gameState', this.getCurrentGame());
 

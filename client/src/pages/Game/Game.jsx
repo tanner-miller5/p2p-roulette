@@ -14,7 +14,7 @@ import {addBet} from "../../store/slices/gameSlice";
 import {useSocket} from "../../hooks/useSocket";
 import { useGameState } from '../../hooks/useGameState';
 import {updateBalance} from "../../store/slices/walletSlice";
-import { getWalletBalance } from '../../services/api';
+//import { getWalletBalance } from '../../services/api';
 
 
 const Game = () => {
@@ -120,6 +120,7 @@ const Game = () => {
     }
   };
 
+  /*
   useEffect(() => {
     const fetchBalance = async () => {
       try {
@@ -129,9 +130,12 @@ const Game = () => {
         console.error('Failed to fetch wallet balance:', error);
       }
     };
+    if(gameState?.timer % 5 == 0) {
+      fetchBalance();
+    }
+  }, [gameState?.timer]);
 
-    fetchBalance();
-  }, [dispatch]);
+   */
 
 
 
@@ -162,6 +166,7 @@ const Game = () => {
             <GameTimer
               timeLeft={gameState?.timer}
               status={gameState?.status}
+              result={gameState?.result}
             />
           </div>
         </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './GameTimer.css';
 
-const GameTimer = ({ timeLeft, status }) => {
+const GameTimer = ({ timeLeft, status, result }) => {
   const getStatusDisplay = () => {
     console.log(status);
     switch (status) {
@@ -11,7 +11,7 @@ const GameTimer = ({ timeLeft, status }) => {
       case 'PROCESSING_BETS':
         return 'Processing Bets';
       case 'RESULTS':
-        return 'Results';
+        return 'Result: ' + result;
       default:
         return 'Connecting...';
     }
@@ -39,7 +39,8 @@ const GameTimer = ({ timeLeft, status }) => {
 
 GameTimer.propTypes = {
   timeLeft: PropTypes.number.isRequired,
-  status: PropTypes.oneOf(['BETTING_OPEN', 'PROCESSING_BETS', 'RESULTS', '']).isRequired
+  status: PropTypes.oneOf(['BETTING_OPEN', 'PROCESSING_BETS', 'RESULTS', '']).isRequired,
+  result: PropTypes.string
 };
 
 export default GameTimer;

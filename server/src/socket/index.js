@@ -25,6 +25,17 @@ const initializeSocket = (io) => {
   io.on('connection', async (socket) => {
     console.log('Client connected:', socket.id);
 
+    // Add balance update interval
+    const balanceInterval = setInterval(async () => {
+      try {
+        const balance = await WalletService.getBalance(socket.user.id);
+        socket.emit('balanceUpdate', { balance });
+      } catch (error) {
+        console.error('Error fetching balance:', error);
+      }
+    }, 5000);
+
+
     socket.on('joinGame', () => {
       console.log('joinGame');
       const currentGame = gameService.getCurrentGame();
@@ -41,11 +52,6 @@ const initializeSocket = (io) => {
           throw new Error('Betting is not open');
         }
 
-        // Withdraw funds using WalletService
-        await WalletService.withdraw(userId, amount);
-        console.log('placeBet');
-        console.log(userId);
-        console.log(socket.user.id);
         // Create bet record
         await Bet.create({
           userId: userId,

@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
 import { store } from '../store/store';
 import { setGameState } from '../store/slices/gameSlice';
+import {updateBalance} from "../store/slices/walletSlice";
 
 class SocketService {
   constructor() {
@@ -48,6 +49,10 @@ class SocketService {
       this.isConnecting = false;
       this.reconnectAttempts = 0;
       this.joinGame();
+    });
+
+    this.socket.on('balanceUpdate', ({ balance }) => {
+      store.dispatch(updateBalance(balance));
     });
 
     this.socket.on('connect_error', (error) => {
