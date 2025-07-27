@@ -1,12 +1,15 @@
 // RouletteWheel.jsx
 import React, { useEffect, useRef } from 'react';
 import './RouletteWheel.css';
+import PropTypes from 'prop-types';
+import {useSelector} from "react-redux";
 
-const RouletteWheel = ({ spinning, result }) => {
+const RouletteWheel = ({ spinning }) => {
   const wheelRef = useRef(null);
   const currentRotation = useRef(0);
   const numberOfSectors = 36;
   const sectorAngle = 360 / numberOfSectors;
+  const gameState = useSelector(state => state.game);
 
   const wheelNumbers = [
     32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5,
@@ -18,25 +21,45 @@ const RouletteWheel = ({ spinning, result }) => {
     return redNumbers.includes(number) ? '#D32F2F' : '#212121';
   };
 
+  const generateWinningNumber = (result) => {
+    // Numbers should be arranged in order around the wheel
+    const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+    const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
+
+    // Select from the appropriate array based on result
+    const numbers = result === 'red' ? redNumbers : blackNumbers;
+    const num = Math.floor(Math.random() * numbers.length);
+    console.log('result:', result);
+    console.log('num:', num);
+    console.log('Winning number:', numbers[num]);
+    return numbers[num];
+  };
+
+
   useEffect(() => {
     if (spinning) {
       // First reset the rotation to 0 without animation
       wheelRef.current.style.transition = 'none';
       wheelRef.current.style.transform = `rotate(0deg)`;
-      wheelRef.current.offsetHeight;
+      wheelRef.current.offsetHeight; // Force reflow
 
-      // Get a random number from the correct color array
-      const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-      const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
-      const possibleNumbers = result === 'red' ? redNumbers : blackNumbers;
-      const winningNumber = possibleNumbers[Math.floor(Math.random() * possibleNumbers.length)];
+      const winningNumber = generateWinningNumber(gameState?.result);
+      const winningIndex = wheelNumbers.indexOf(winningNumber);
+
 
       // Find the index of the winning number
-      const resultIndex = wheelNumbers.findIndex(num => num === winningNumber);
-      // Calculate the exact angle needed for the winning number to land at the top
-      const targetAngle = -(resultIndex * sectorAngle + sectorAngle / 2);
-      // Add complete rotations plus the target angle
-      const finalRotation = 3600 + targetAngle;
+      //const resultIndex = wheelNumbers.findIndex(num => num === winningNumber);
+
+      // Calculate the target angle
+      // Multiply by negative sectorAngle for clockwise rotation
+      // Don't add sectorAngle/2 to align with center of sector
+      //const baseAngle = -(resultIndex * sectorAngle) + sectorAngle/2;
+
+      // Add multiple spins for animation effect (5 full rotations)
+      const rotations = 5 * 360;
+      const sectorAngle = 360 / wheelNumbers.length;
+      const finalRotation = rotations + (winningIndex * sectorAngle) + sectorAngle/2;
+
 
       // Re-enable transition and apply the spin
       wheelRef.current.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
@@ -44,9 +67,9 @@ const RouletteWheel = ({ spinning, result }) => {
 
       currentRotation.current = finalRotation;
     }
-  }, [spinning, result, wheelNumbers, sectorAngle]);
+  }, [spinning, wheelNumbers, sectorAngle]);
 
-  const wheelBackground = wheelNumbers.map((number, index) => 
+  const wheelBackground = wheelNumbers.map((number, index) =>
     `${getSectorColor(number)} ${index * sectorAngle}deg ${(index + 1) * sectorAngle}deg`
   ).join(',');
 
@@ -70,7 +93,7 @@ const RouletteWheel = ({ spinning, result }) => {
               }}
             >
               <span style={{
-                transform: `rotate(90deg)`
+                transform: `rotate(0deg)`
               }}>
                 {number}
               </span>
@@ -82,5 +105,12 @@ const RouletteWheel = ({ spinning, result }) => {
     </div>
   );
 };
+
+// Add PropTypes for type checking
+RouletteWheel.propTypes = {
+  spinning: PropTypes.bool.isRequired,
+  result: PropTypes.string
+};
+
 
 export default RouletteWheel;

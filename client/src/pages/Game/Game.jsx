@@ -174,7 +174,7 @@ const Game = () => {
         {/* Game Content */}
         <RouletteWheel
           spinning={gameState?.status === 'spinning'}
-          result={gameState?.result}
+
         />
 
         <div className="betting-section">
