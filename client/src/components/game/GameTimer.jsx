@@ -12,6 +12,8 @@ const GameTimer = ({ timeLeft, status, result }) => {
         return 'Processing Bets';
       case 'RESULTS':
         return 'Result: ' + result;
+      case 'spinning':
+        return 'Spinning';
       default:
         return 'Connecting...';
     }

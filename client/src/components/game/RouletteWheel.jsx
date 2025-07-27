@@ -1,89 +1,62 @@
-import React, { useEffect, useState, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect, useRef } from 'react';
 import './RouletteWheel.css';
 
-const RouletteWheel = ({ spinning, result, lastResults }) => {
-  const [rotation, setRotation] = useState(0);
+const RouletteWheel = ({ spinning, result }) => {
   const wheelRef = useRef(null);
-  const previousResult = useRef(null);
+  const currentRotation = useRef(0);
+  const numberOfSectors = 36;
+  const sectorAngle = 360 / numberOfSectors;
+
+  const wheelNumbers = [
+    32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5,
+    24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
+  ];
+
+  const getSectorColor = (number) => {
+    const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+    return redNumbers.includes(number) ? '#D32F2F' : '#212121';
+  };
 
   useEffect(() => {
     if (spinning) {
-      const startRotation = rotation;
-      const endRotation = startRotation + (360 * 5) + getResultRotation(result);
+      const additionalRotation = 3600 + (result === 'red' ? 0 : sectorAngle);
+      currentRotation.current += additionalRotation;
       
       if (wheelRef.current) {
-        wheelRef.current.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
-        wheelRef.current.style.transform = `rotate(${endRotation}deg)`;
+        wheelRef.current.style.transform = `rotate(${currentRotation.current}deg)`;
       }
-      setRotation(endRotation);
-    } else if (!spinning && result && result !== previousResult.current) {
-      previousResult.current = result;
     }
-  }, [spinning, result, rotation]);
+  }, [spinning, result]);
 
-  const getResultRotation = (result) => {
-    const segments = [
-      'red', 'black', 'red', 'black', 'red', 'black',
-      'red', 'black', 'red', 'black', 'red', 'black'
-    ];
-    
-    const resultIndex = segments.indexOf(result);
-    if (resultIndex === -1) return 0;
-    
-    return resultIndex * 30;
-  };
-
-  const safeLastResults = Array.isArray(lastResults) ? lastResults : [];
-  const recentResults = safeLastResults.slice(0, 10);
+  const wheelBackground = wheelNumbers.map((number, index) => 
+    `${getSectorColor(number)} ${index * sectorAngle}deg ${(index + 1) * sectorAngle}deg`
+  ).join(',');
 
   return (
     <div className="roulette-container">
-      <div className="roulette-marker" data-testid="roulette-marker"></div>
+      <div className="roulette-ball" />
       <div 
         ref={wheelRef}
-        className={`roulette-wheel ${spinning ? 'spinning' : ''}`}
-        data-testid="roulette-wheel"
+        className="roulette-wheel"
+        style={{
+          background: `conic-gradient(${wheelBackground})`
+        }}
       >
-        {Array.from({ length: 12 }).map((_, index) => (
+        {wheelNumbers.map((number, index) => (
           <div
             key={index}
-            className={`wheel-segment ${index % 2 === 0 ? 'red' : 'black'}`}
+            className="sector-number"
             style={{
-              transform: `rotate(${index * 30}deg) translateY(-50%)`
+              transform: `rotate(${index * sectorAngle + sectorAngle/2}deg) translateY(-125px)`
             }}
-            data-testid="wheel-segment"
-          />
+          >
+            {number}
+          </div>
         ))}
+        <div className="wheel-center" />
       </div>
-      
-      {recentResults.length > 0 && (
-        <div className="results-history" data-testid="results-history">
-          {recentResults.map((historyResult, index) => (
-            <div 
-              key={index}
-              className={`history-item ${historyResult}`}
-              data-testid="history-item"
-            >
-              {historyResult}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
-};
-
-RouletteWheel.propTypes = {
-  spinning: PropTypes.bool,
-  result: PropTypes.oneOf(['red', 'black', null]),
-  lastResults: PropTypes.arrayOf(PropTypes.string)
-};
-
-RouletteWheel.defaultProps = {
-  spinning: false,
-  result: null,
-  lastResults: []
 };
 
 export default RouletteWheel;
