@@ -43,16 +43,18 @@ const RouletteWheel = ({ spinning, result }) => {
           background: `conic-gradient(from 0deg, ${wheelBackground})`
         }}
       >
-        <div className="numbers-container">
+        <div className="numbers-ring">
           {wheelNumbers.map((number, index) => (
             <div
               key={index}
-              className="sector-number"
+              className="number-slot"
               style={{
                 transform: `rotate(${index * sectorAngle}deg)`,
               }}
             >
-              <span style={{ transform: `rotate(90deg)` }}>
+              <span style={{
+                transform: `rotate(${sectorAngle/2}deg)`
+              }}>
                 {number}
               </span>
             </div>
@@ -63,5 +65,4 @@ const RouletteWheel = ({ spinning, result }) => {
     </div>
   );
 };
-
 export default RouletteWheel;
