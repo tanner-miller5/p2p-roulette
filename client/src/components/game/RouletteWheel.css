@@ -15,16 +15,32 @@
   transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 }
 
+.numbers-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+
 .sector-number {
   position: absolute;
-  left: 50%;
+  width: 100%;
+  height: 50%;
+  left: 0;
+  top: 0;
+  transform-origin: bottom center;
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+}
+
+.sector-number span {
   color: white;
   font-weight: bold;
   font-size: 16px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  transform-origin: center;
   white-space: nowrap;
-  z-index: 2;
 }
 
 .wheel-center {

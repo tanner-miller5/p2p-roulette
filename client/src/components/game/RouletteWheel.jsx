@@ -1,3 +1,4 @@
+// RouletteWheel.jsx
 import React, { useEffect, useRef } from 'react';
 import './RouletteWheel.css';
 
@@ -39,20 +40,24 @@ const RouletteWheel = ({ spinning, result }) => {
         ref={wheelRef}
         className="roulette-wheel"
         style={{
-          background: `conic-gradient(${wheelBackground})`
+          background: `conic-gradient(from 0deg, ${wheelBackground})`
         }}
       >
-        {wheelNumbers.map((number, index) => (
-          <div
-            key={index}
-            className="sector-number"
-            style={{
-              transform: `rotate(${index * sectorAngle + sectorAngle/2}deg) translateY(-125px)`
-            }}
-          >
-            {number}
-          </div>
-        ))}
+        <div className="numbers-container">
+          {wheelNumbers.map((number, index) => (
+            <div
+              key={index}
+              className="sector-number"
+              style={{
+                transform: `rotate(${index * sectorAngle}deg)`,
+              }}
+            >
+              <span style={{ transform: `rotate(90deg)` }}>
+                {number}
+              </span>
+            </div>
+          ))}
+        </div>
         <div className="wheel-center" />
       </div>
     </div>
