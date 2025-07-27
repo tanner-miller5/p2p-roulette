@@ -28,14 +28,15 @@
   width: 20px;
   height: 150px;
   left: calc(50% - 10px);
-  transform-origin: 50% 150px;
+  top: 0;
+  transform-origin: center bottom;
 }
 
 .number-slot span {
   position: absolute;
   width: 20px;
   left: 0;
-  top: 15px;
+  top: 10px;
   text-align: center;
   color: white;
   font-weight: bold;
