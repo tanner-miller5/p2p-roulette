@@ -83,7 +83,11 @@ class GameService extends EventEmitter {
     try {
       clearInterval(this.timer);
 
+      // Process all bets in a single transaction
+      const result = Math.random() < 0.5 ? 'red' : 'black';
+
       // Add spinning state
+      this.currentGame.result = result;
       this.currentGame.status = 'spinning';
       this.emit('gameState', this.getCurrentGame());
 
@@ -93,9 +97,6 @@ class GameService extends EventEmitter {
 
       this.currentGame.status = 'PROCESSING_BETS';
       this.emit('gameState', this.getCurrentGame());
-
-      // Process all bets in a single transaction
-      const result = Math.random() < 0.5 ? 'red' : 'black';
       
       // First update game status
       await Game.update({
@@ -134,7 +135,6 @@ class GameService extends EventEmitter {
         }
       }
 
-      this.currentGame.result = result;
       this.currentGame.status = 'RESULTS'; // Add this line
       this.emit('gameState', this.getCurrentGame());
 
