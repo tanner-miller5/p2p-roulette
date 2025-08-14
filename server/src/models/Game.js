@@ -22,8 +22,12 @@ module.exports = (sequelize) => {
       defaultValue: 'INITIALIZING'
     },
     result: {
-      type: DataTypes.ENUM('red', 'black'),
-      allowNull: true
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        validate: {
+            min: 1,
+            max: 36
+        }
     },
     playerCount: {
       type: DataTypes.INTEGER,

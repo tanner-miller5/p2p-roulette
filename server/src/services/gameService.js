@@ -83,17 +83,16 @@ class GameService extends EventEmitter {
     try {
       clearInterval(this.timer);
 
-      // Process all bets in a single transaction
-      const result = Math.random() < 0.5 ? 'red' : 'black';
-
+      // Generate a random roulette number (1-36)
+      const resultNumber = Math.floor(Math.random() * 36) + 1;
+      
       // Add spinning state
-      this.currentGame.result = result;
+      this.currentGame.result = resultNumber;
       this.currentGame.status = 'spinning';
       this.emit('gameState', this.getCurrentGame());
 
       // Wait for spinning animation
       await new Promise(resolve => setTimeout(resolve, 3000));
-
 
       this.currentGame.status = 'PROCESSING_BETS';
       this.emit('gameState', this.getCurrentGame());
@@ -101,12 +100,16 @@ class GameService extends EventEmitter {
       // First update game status
       await Game.update({
         status: 'RESULTS',
-        result,
+        result: resultNumber,
         endTime: new Date()
       }, {
         where: { id: this.currentGame.id },
         transaction
       });
+
+      // Determine color from number for bet processing
+      const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+      const resultColor = redNumbers.includes(resultNumber) ? 'red' : 'black';
 
       // Process unmatched bets first
       for (const betType of ['red', 'black']) {
@@ -122,8 +125,8 @@ class GameService extends EventEmitter {
         }
       }
 
-      // Then process winning bets
-      const winningBets = Array.from(this.currentGame.bets[result].entries());
+      // Then process winning bets based on the color derived from the number
+      const winningBets = Array.from(this.currentGame.bets[resultColor].entries());
       for (const [userId, bet] of winningBets) {
         if (bet.matched) {
           const winnings = Math.floor(bet.amount * 2 * 0.975); // 2.5% fee
@@ -135,10 +138,10 @@ class GameService extends EventEmitter {
         }
       }
 
-      this.currentGame.status = 'RESULTS'; // Add this line
+      this.currentGame.status = 'RESULTS';
       this.emit('gameState', this.getCurrentGame());
 
-      this.currentGame.lastResults.unshift(result);
+      this.currentGame.lastResults.unshift(resultNumber);
       if (this.currentGame.lastResults.length > 10) {
         this.currentGame.lastResults.pop();
       }

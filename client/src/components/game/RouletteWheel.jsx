@@ -2,16 +2,12 @@
 import React, { useEffect, useRef } from 'react';
 import './RouletteWheel.css';
 import PropTypes from 'prop-types';
-//import {useSelector} from "react-redux";
 
 const RouletteWheel = ({ spinning, result }) => {
   const numberOfSectors = 36;
   const sectorAngle = 360 / numberOfSectors;
   const wheelRef = useRef(null);
   const currentRotation = useRef(0);
-
-
-  //const gameState = useSelector(state => state.game);
 
   const wheelNumbers = [
     32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5,
@@ -22,33 +18,6 @@ const RouletteWheel = ({ spinning, result }) => {
     const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
     return redNumbers.includes(number) ? '#D32F2F' : '#212121';
   };
-/*
-  const generateWinningNumber = (result) => {
-    // Numbers should be arranged in order around the wheel
-    const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-    const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
-
-    // Select from the appropriate array based on result
-    const numbers = result === 'red' ? redNumbers : blackNumbers;
-    const num = Math.floor(Math.random() * numbers.length);
-    console.log('result:', result);
-    console.log('num:', num);
-    console.log('Winning number:', numbers[num]);
-    return numbers[num];
-  };
-
-  const getWinningNumberForResult = (result) => {
-    if (result === 'red') {
-      return wheelNumbers.find(num => [
-        1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36
-      ].includes(num));
-    } else {
-      return wheelNumbers.find(num => [
-        2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35
-      ].includes(num));
-    }
-  };
-*/
 
 
   useEffect(() => {
@@ -58,34 +27,10 @@ const RouletteWheel = ({ spinning, result }) => {
       wheelRef.current.style.transform = `rotate(0deg)`;
       wheelRef.current.offsetHeight; // Force reflow
 
-      // Convert color result to specific number that matches the color
-      const getRandomNumberForColor = (color) => {
-        const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-        const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
-        const numbers = color === 'red' ? redNumbers : blackNumbers;
-        const num = Math.floor(Math.random() * numbers.length);
-        console.log('result:', color);
-        console.log('num:', num);
-        console.log('Winning number:', numbers[num]);
-        return numbers[num];
-      };
-
-      const targetNumber = getRandomNumberForColor(result);
+      //const targetNumber = getRandomNumberForColor(result);
+      const targetNumber = result;
       const winningIndex = wheelNumbers.indexOf(targetNumber);
       console.log('winningIndex:', winningIndex);
-
-      //const winningNumber = generateWinningNumber(result);
-      //const winningNumber = getWinningNumberForResult(result);
-      //const winningIndex = wheelNumbers.indexOf(winningNumber);
-
-
-      // Find the index of the winning number
-      //const resultIndex = wheelNumbers.findIndex(num => num === winningNumber);
-
-      // Calculate the target angle
-      // Multiply by negative sectorAngle for clockwise rotation
-      // Don't add sectorAngle/2 to align with center of sector
-      //const baseAngle = -(resultIndex * sectorAngle) + sectorAngle/2;
 
       // Add multiple spins for animation effect (5 full rotations)
       const rotations = 0;//5 * 360;
@@ -102,7 +47,6 @@ const RouletteWheel = ({ spinning, result }) => {
       wheelRef.current.style.transition = 'transform 3s cubic-bezier(0.2, 0.8, 0.3, 1)';
       wheelRef.current.style.transform = `rotate(${finalRotation}deg)`;
 
-      //currentRotation.current = finalRotation;
     }
 
   }, [spinning, result]);
@@ -149,6 +93,5 @@ RouletteWheel.propTypes = {
   spinning: PropTypes.bool.isRequired,
   result: PropTypes.string
 };
-
 
 export default RouletteWheel;
