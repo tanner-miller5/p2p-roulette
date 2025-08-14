@@ -120,26 +120,6 @@ const Game = () => {
     }
   };
 
-  /*
-  useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const { balance } = await getWalletBalance();
-        dispatch(updateBalance(balance));
-      } catch (error) {
-        console.error('Failed to fetch wallet balance:', error);
-      }
-    };
-    if(gameState?.timer % 5 == 0) {
-      fetchBalance();
-    }
-  }, [gameState?.timer]);
-
-   */
-
-
-
-
   const handleBetAmountChange = (e) => {
     const value = Number(e.target.value);
     if (value >= 10 && value <= 1000) {

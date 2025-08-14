@@ -13,6 +13,7 @@ class GameService extends EventEmitter {
     super();
     this.currentGame = null;
     this.timer = null;
+    this.lastResults = []; // Move lastResults to class level to persist across rounds
     this.initializeGame();
     // Listen to our own events and broadcast them via Socket.IO
     this.on('gameState', (state) => {
@@ -20,7 +21,6 @@ class GameService extends EventEmitter {
         io.emit('gameState', state);
       }
     });
-
   }
 
   async initializeGame() {
@@ -47,7 +47,7 @@ class GameService extends EventEmitter {
           black: new Map()
         },
         currentBets: { red: 0, black: 0 },
-        lastResults: []
+        lastResults: this.lastResults // Use the persistent lastResults array
       };
 
       await transaction.commit();
@@ -141,10 +141,14 @@ class GameService extends EventEmitter {
       this.currentGame.status = 'RESULTS';
       this.emit('gameState', this.getCurrentGame());
 
-      this.currentGame.lastResults.unshift(resultNumber);
-      if (this.currentGame.lastResults.length > 10) {
-        this.currentGame.lastResults.pop();
+      // Update the persistent lastResults array
+      this.lastResults.unshift(resultNumber);
+      if (this.lastResults.length > 10) {
+        this.lastResults.pop();
       }
+      
+      // Update currentGame's lastResults reference
+      this.currentGame.lastResults = this.lastResults;
 
       await transaction.commit();
 
@@ -196,7 +200,6 @@ class GameService extends EventEmitter {
         matched: false
       }, { transaction });
 
-
       if (!this.currentGame.bets[betType]) {
         this.currentGame.bets[betType] = new Map();
       }
@@ -236,6 +239,7 @@ class GameService extends EventEmitter {
     
     return {
       ...this.currentGame,
+      lastResults: this.lastResults, // Always include the persistent lastResults
       bets: {
         red: Object.fromEntries(this.currentGame.bets.red),
         black: Object.fromEntries(this.currentGame.bets.black)
