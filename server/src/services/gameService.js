@@ -224,15 +224,17 @@ class GameService extends EventEmitter {
     const oppositeBets = Array.from(this.currentGame.bets[oppositeType].entries())
       .filter(([_, bet]) => !bet.matched);
 
-    for (const [userId, bet] of currentBets) {
-      const matchingBet = oppositeBets.find(([_, oppBet]) => oppBet.amount === bet.amount);
-      if (matchingBet) {
-        bet.matched = true;
-        this.currentGame.bets[betType].set(userId, bet);
-        this.currentGame.bets[oppositeType].set(matchingBet[0], { ...matchingBet[1], matched: true });
-      }
+  for (const [userId, bet] of currentBets) {
+    const matchingBet = oppositeBets.find(([oppUserId, oppBet]) => 
+      oppBet.amount === bet.amount && oppUserId !== userId
+    );
+    if (matchingBet) {
+      bet.matched = true;
+      this.currentGame.bets[betType].set(userId, bet);
+      this.currentGame.bets[oppositeType].set(matchingBet[0], { ...matchingBet[1], matched: true });
     }
   }
+}
 
   getCurrentGame() {
     if (!this.currentGame) return null;
