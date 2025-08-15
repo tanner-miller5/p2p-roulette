@@ -1,50 +1,81 @@
 .game-timer {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e0e0e0;
+  min-width: 120px;
+}
+
+.timer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.timer-display {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+  min-height: 40px;
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 10px;
-  background-color: #333;
-  border-radius: 6px;
+  justify-content: center;
+  min-width: 60px;
 }
 
-.game-status {
-  font-size: 18px;
-  font-weight: 600;
-  color: #ffffff;
-  text-transform: uppercase;
+.timer-display.spinning {
+  animation: spin 1s linear infinite;
 }
 
-.timer-count {
+.timer-display.result-number {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 24px;
   font-weight: bold;
-  padding: 5px 10px;
-  border-radius: 4px;
-  min-width: 60px;
-  text-align: center;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.timer-normal {
-  color: #4CAF50;
+.timer-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.timer-warning {
-  color: #FFC107;
-  animation: pulse 1s infinite;
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.timer-critical {
-  color: #FF5252;
-  animation: pulse 0.5s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
+/* Responsive design */
+@media (max-width: 768px) {
+  .game-timer {
+    padding: 12px;
+    min-width: 100px;
   }
-  50% {
-    opacity: 0.5;
+  
+  .timer-display {
+    font-size: 28px;
+    min-height: 35px;
+    min-width: 50px;
   }
-  100% {
-    opacity: 1;
+  
+  .timer-display.result-number {
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+  }
+  
+  .timer-label {
+    font-size: 12px;
   }
 }

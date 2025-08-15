@@ -131,13 +131,15 @@
 }
 
 .sign-out-button {
-  padding: 0.5rem 1rem;
-  background-color: #ff4444;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+    padding: 6px 12px;
+    font-size: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-width: auto;
+    background-color: #ff4444;
+    color: white;
 }
 
 .sign-out-button:hover {
@@ -389,21 +391,36 @@
 }
 
 .game-user-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 10px;
 }
 
 .game-user-details {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 4px;
+
 }
 
-.game-user-details .username {
+.username {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.balance {
+    font-size: 16px;
+    font-weight: 500;
+    color: #2c5530;
+}
+
+
+.game-user-details {
   font-size: 1.2rem;
   font-weight: 500;
   color: #333;
@@ -415,13 +432,19 @@
 }
 
 .sign-out-btn {
-  padding: 0.75rem 1.5rem;
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+    padding: 4px 8px;
+    font-size: 16px;
+    border: none;
+    border-radius: 3px;
+    background-color: #dc3545;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-width: auto;
+    width: 100px;
+    height: auto;
+    white-space: nowrap;
+
 }
 
 .sign-out-btn:hover {
@@ -481,4 +504,20 @@
   .betting-buttons {
     flex-direction: column;
   }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .username {
+        font-size: 16px;
+    }
+
+    .balance {
+        font-size: 14px;
+    }
+
+    .sign-out-btn {
+        padding: 3px 6px;
+        font-size: 10px;
+    }
 }

@@ -39,51 +39,9 @@ const Game = () => {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
-      return;
     }
-    /*
-
-    const token = localStorage.getItem('token');
-    const socketUrl = process.env.REACT_APP_SOCKET_URL || 'http://localhost:3001';
-
-    const newSocket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-      timeout: 10000
-    });
-
-    newSocket.on('connect', () => {
-      console.log('Connected to game server');
-      newSocket.emit('joinGame');
-    });
-
-    newSocket.on('gameState', (state) => {
-      console.log('Received game state:', state);
-      store.dispatch(setGameState(prev => ({
-        ...prev,
-        ...state,
-        currentBets: {
-          red: calculateTotalBets(state.bets?.red || {}),
-          black: calculateTotalBets(state.bets?.black || {})
-        }
-      })));
-    });
-
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.close();
-    };
-    */
   }, [isAuthenticated, navigate]);
-/*
-  const calculateTotalBets = (bets) => {
-    return Object.values(bets).reduce((total, bet) => total + (bet.amount || 0), 0);
-  };
-*/
+
   const handleSignOut = () => {
     if (socket) {
       socket.disconnect();
