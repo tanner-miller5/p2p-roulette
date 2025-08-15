@@ -3,3 +3,55 @@
   flex-direction: column;
   position: relative;
 }
+
+.bet-history {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.bet-history-title {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.bet-history-results {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.result-item {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-results {
+  color: #666;
+  font-style: italic;
+  padding: 10px 0;
+}
+
+@media (max-width: 768px) {
+  .result-item {
+    width: 35px;
+    height: 35px;
+    font-size: 12px;
+  }
+  
+  .bet-history-results {
+    gap: 6px;
+  }
+}

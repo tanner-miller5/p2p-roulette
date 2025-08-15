@@ -33,7 +33,7 @@ const RouletteWheel = ({ spinning, result }) => {
       console.log('winningIndex:', winningIndex);
 
       // Add multiple spins for animation effect (5 full rotations)
-      const rotations = 0;//5 * 360;
+      const rotations = 5 * 360;
       const sectorAngle = 360 / wheelNumbers.length;
       const finalRotation =
           -1 * (rotations + (winningIndex * sectorAngle) + (sectorAngle/2));

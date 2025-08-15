@@ -203,7 +203,7 @@ const Game = () => {
         )}
 
         <div className="history-section">
-          <BetHistory history={gameState.lastResults} />
+          <BetHistory />
         </div>
       </div>
     </div>
