@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-//import { io } from 'socket.io-client';
 import './Game.css';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -10,11 +9,11 @@ import RouletteWheel from "../../components/game/RouletteWheel";
 import GameTimer from "../../components/game/GameTimer";
 import {getProfile} from "../../services/api";
 import {addBet} from "../../store/slices/gameSlice";
-//import {store} from "../../store";
 import {useSocket} from "../../hooks/useSocket";
 import { useGameState } from '../../hooks/useGameState';
 import {updateBalance} from "../../store/slices/walletSlice";
-//import { getWalletBalance } from '../../services/api';
+import CurrentBets from "../../components/game/CurrentBets";
+
 
 
 const Game = () => {
@@ -201,6 +200,7 @@ const Game = () => {
             {error}
           </div>
         )}
+    <CurrentBets />
 
         <div className="history-section">
           <BetHistory />

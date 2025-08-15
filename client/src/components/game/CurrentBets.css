@@ -1,0 +1,213 @@
+
+.current-bets {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+.current-bets-title {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+}
+
+.bets-overview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.bet-summary {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  border: 2px solid transparent;
+}
+
+.red-summary {
+  border-color: #D32F2F;
+}
+
+.black-summary {
+  border-color: #212121;
+}
+
+.bet-color-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.bet-color-indicator.red {
+  background-color: #D32F2F;
+}
+
+.bet-color-indicator.black {
+  background-color: #212121;
+}
+
+.bet-info {
+  flex: 1;
+}
+
+.bet-total {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.bet-players {
+  font-size: 14px;
+  color: #666;
+}
+
+.betting-details {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+}
+
+.bet-section {
+  margin-bottom: 20px;
+}
+
+.bet-section:last-child {
+  margin-bottom: 0;
+}
+
+.bet-section-title {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.red-title {
+  color: #D32F2F;
+}
+
+.black-title {
+  color: #212121;
+}
+
+.red-title::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #D32F2F;
+  margin-right: 8px;
+}
+
+.black-title::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #212121;
+  margin-right: 8px;
+}
+
+.player-bets {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.player-bet {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: #f5f5f5;
+  border-radius: 6px;
+  border-left: 4px solid transparent;
+}
+
+.player-bet.matched {
+  border-left-color: #4caf50;
+  background-color: #e8f5e8;
+}
+
+.player-bet.unmatched {
+  border-left-color: #ff9800;
+  background-color: #fff3e0;
+}
+
+.bet-amount {
+  font-weight: 600;
+  color: #333;
+}
+
+.bet-status {
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+
+.bet-status::before {
+  margin-right: 4px;
+}
+
+.no-bets {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+}
+
+.betting-closed {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+  text-align: center;
+}
+
+.closed-message {
+  font-size: 18px;
+  font-weight: 600;
+  color: #666;
+  padding: 15px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .current-bets {
+    padding: 15px;
+  }
+  
+  .bets-overview {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .bet-summary {
+    padding: 12px;
+  }
+  
+  .bet-total {
+    font-size: 14px;
+  }
+  
+  .bet-players {
+    font-size: 12px;
+  }
+  
+  .current-bets-title {
+    font-size: 18px;
+  }
+}
