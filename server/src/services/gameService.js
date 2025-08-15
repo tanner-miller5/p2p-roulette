@@ -111,11 +111,11 @@ class GameService extends EventEmitter {
       const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
       const resultColor = redNumbers.includes(resultNumber) ? 'red' : 'black';
 
-      // Process unmatched bets first
+      // Process unmatched bets (refund remaining amounts)
       for (const betType of ['red', 'black']) {
         const bets = Array.from(this.currentGame.bets[betType].entries());
         for (const [userId, bet] of bets) {
-          if (!bet.matched) {
+          if (bet.amount > 0) { // Refund remaining unmatched amount
             await Wallet.increment('balance', {
               by: bet.amount,
               where: { userId },
@@ -125,14 +125,15 @@ class GameService extends EventEmitter {
         }
       }
 
-      // Then process winning bets based on the color derived from the number
-      const winningBets = Array.from(this.currentGame.bets[resultColor].entries());
-      for (const [userId, bet] of winningBets) {
-        if (bet.matched) {
-          const winnings = Math.floor(bet.amount * 2 * 0.975); // 2.5% fee
+      // Process matched bets using the matches array
+      if (this.currentGame.matches) {
+        for (const match of this.currentGame.matches) {
+          const winningUserId = match.bet1Type === resultColor ? match.user1 : match.user2;
+          const winnings = Math.floor(match.amount * 2 * 0.975); // 2.5% fee
+          
           await Wallet.increment('balance', {
             by: winnings,
-            where: { userId },
+            where: { userId: winningUserId },
             transaction
           });
         }
@@ -217,22 +218,124 @@ class GameService extends EventEmitter {
     }
   }
 
-  matchBets(betType) {
-    const oppositeType = betType === 'red' ? 'black' : 'red';
-    const currentBets = Array.from(this.currentGame.bets[betType].entries())
-      .filter(([_, bet]) => !bet.matched);
-    const oppositeBets = Array.from(this.currentGame.bets[oppositeType].entries())
-      .filter(([_, bet]) => !bet.matched);
+matchBets(betType) {
+  const oppositeType = betType === 'red' ? 'black' : 'red';
+  
+  // Get all unmatched bets and convert to a workable format
+  const currentBets = Array.from(this.currentGame.bets[betType].entries())
+    .filter(([_, bet]) => !bet.matched)
+    .map(([userId, bet]) => ({
+      userId,
+      amount: bet.amount,
+      originalAmount: bet.originalAmount || bet.amount,
+      matched: false,
+      betType
+    }));
+    
+  const oppositeBets = Array.from(this.currentGame.bets[oppositeType].entries())
+    .filter(([_, bet]) => !bet.matched)
+    .map(([userId, bet]) => ({
+      userId,
+      amount: bet.amount,
+      originalAmount: bet.originalAmount || bet.amount,
+      matched: false,
+      betType: oppositeType
+    }));
 
-  for (const [userId, bet] of currentBets) {
-    const matchingBet = oppositeBets.find(([oppUserId, oppBet]) => 
-      oppBet.amount === bet.amount && oppUserId !== userId
-    );
-    if (matchingBet) {
-      bet.matched = true;
-      this.currentGame.bets[betType].set(userId, bet);
-      this.currentGame.bets[oppositeType].set(matchingBet[0], { ...matchingBet[1], matched: true });
+  // Sort bets by amount (smallest first for optimal matching)
+  currentBets.sort((a, b) => a.amount - b.amount);
+  oppositeBets.sort((a, b) => a.amount - b.amount);
+
+  // Perform matching with splitting
+  for (let i = 0; i < currentBets.length; i++) {
+    const currentBet = currentBets[i];
+    if (currentBet.matched) continue;
+
+    for (let j = 0; j < oppositeBets.length; j++) {
+      const oppositeBet = oppositeBets[j];
+      if (oppositeBet.matched || oppositeBet.userId === currentBet.userId) continue;
+
+      // Determine the smaller amount to match
+      const matchAmount = Math.min(currentBet.amount, oppositeBet.amount);
+
+      // Create the match
+      this.createMatch(currentBet, oppositeBet, matchAmount);
+
+      // Update remaining amounts
+      currentBet.amount -= matchAmount;
+      oppositeBet.amount -= matchAmount;
+
+      // Mark as matched if fully consumed
+      if (currentBet.amount === 0) {
+        currentBet.matched = true;
+      }
+      if (oppositeBet.amount === 0) {
+        oppositeBet.matched = true;
+      }
+
+      // If current bet is fully matched, move to next
+      if (currentBet.matched) break;
     }
+  }
+
+  // Update the game state with the new bet structure
+  this.updateGameStateAfterMatching(betType, currentBets);
+  this.updateGameStateAfterMatching(oppositeType, oppositeBets);
+}
+
+createMatch(bet1, bet2, matchAmount) {
+  // Record the match for payout processing
+  if (!this.currentGame.matches) {
+    this.currentGame.matches = [];
+  }
+  
+  this.currentGame.matches.push({
+    user1: bet1.userId,
+    user2: bet2.userId,
+    amount: matchAmount,
+    bet1Type: bet1.betType,
+    bet2Type: bet2.betType
+  });
+}
+
+updateGameStateAfterMatching(betType, processedBets) {
+  // Clear the current bets for this type
+  this.currentGame.bets[betType].clear();
+  
+  // Group processed bets by userId and rebuild the bet structure
+  const userBets = new Map();
+  
+  for (const bet of processedBets) {
+    if (!userBets.has(bet.userId)) {
+      userBets.set(bet.userId, {
+        totalAmount: 0,
+        matchedAmount: 0,
+        remainingAmount: 0,
+        originalAmount: bet.originalAmount
+      });
+    }
+    
+    const userBet = userBets.get(bet.userId);
+    userBet.totalAmount += bet.originalAmount;
+    
+    if (bet.amount === 0) {
+      // Fully matched
+      userBet.matchedAmount += (bet.originalAmount - bet.amount);
+    } else {
+      // Partially or not matched
+      userBet.remainingAmount += bet.amount;
+      userBet.matchedAmount += (bet.originalAmount - bet.amount);
+    }
+  }
+  
+  // Rebuild the bets map with the new structure
+  for (const [userId, userBet] of userBets) {
+    this.currentGame.bets[betType].set(userId, {
+      amount: userBet.remainingAmount,
+      matchedAmount: userBet.matchedAmount,
+      originalAmount: userBet.originalAmount,
+      matched: userBet.remainingAmount === 0
+    });
   }
 }
 
