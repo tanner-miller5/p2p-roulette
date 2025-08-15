@@ -22,7 +22,7 @@ const Game = () => {
   }, [gameState, dispatch]);
 
   const handleBet = (type) => {
-    if (!gameState || gameState.status !== 'waiting') {
+    if (!gameState || gameState.status !== 'BETTING_OPEN') {
       setError('Betting is currently closed');
       return;
     }
@@ -33,16 +33,12 @@ const Game = () => {
     }
 
     try {
-      // Optimistically update the balance
-      dispatch(updateBalance(balance - betAmount));
-      // Add bet to the game state
-      dispatch(addBet({
-        betType: type,
-        amount: betAmount,
-        userId: socket.id // or however you store the user ID
-      }));
+      // Remove the optimistic updates - let server handle everything
+      // dispatch(updateBalance(balance - betAmount));  // Remove this
+      // dispatch(addBet({...}));  // Remove this
 
-      placeBet(betAmount, type);
+      // Only call the server
+      placeBet(userId, betAmount, type);  // Make sure you're using actual userId, not socket.id
       setError(null);
     } catch (err) {
       setError(err.message);

@@ -51,7 +51,7 @@ const initializeSocket = (io) => {
         if (currentGame?.status !== 'BETTING_OPEN') {
           throw new Error('Betting is not open');
         }
-
+        /*
         // Create bet record
         await Bet.create({
           userId: userId,
@@ -59,6 +59,8 @@ const initializeSocket = (io) => {
           amount,
           betType
         });
+
+         */
 
         // Place bet in game service
         await gameService.placeBet(userId, amount, betType);
