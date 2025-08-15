@@ -39,8 +39,14 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    matchedAmount: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0
+    },
     processed: {
       type: DataTypes.BOOLEAN,
+      allowNull: false,
       defaultValue: false
     }
   }, {
@@ -48,6 +54,5 @@ module.exports = (sequelize) => {
     timestamps: true,
     underscored: true
   });
-
   return Bet;
 };

@@ -107,6 +107,16 @@ class GameService extends EventEmitter {
         transaction
       });
 
+      // Mark all bets as processed
+      await Bet.update({
+        processed: true
+      }, {
+        where: {
+          gameId: this.currentGame.id
+        },
+        transaction
+      });
+
       // Determine color from number for bet processing
       const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
       const resultColor = redNumbers.includes(resultNumber) ? 'red' : 'black';
@@ -218,7 +228,7 @@ class GameService extends EventEmitter {
     }
   }
 
-matchBets(betType) {
+async matchBets(betType) {
   const oppositeType = betType === 'red' ? 'black' : 'red';
   
   // Get all unmatched bets and convert to a workable format
@@ -246,6 +256,8 @@ matchBets(betType) {
   currentBets.sort((a, b) => a.amount - b.amount);
   oppositeBets.sort((a, b) => a.amount - b.amount);
 
+  const dbUpdates = []; // Track database updates needed
+
   // Perform matching with splitting
   for (let i = 0; i < currentBets.length; i++) {
     const currentBet = currentBets[i];
@@ -259,7 +271,19 @@ matchBets(betType) {
       const matchAmount = Math.min(currentBet.amount, oppositeBet.amount);
 
       // Create the match
-      this.createMatch(currentBet, oppositeBet, matchAmount);
+      await this.createMatch(currentBet, oppositeBet, matchAmount);
+
+      // Track database updates
+      dbUpdates.push({
+        userId: currentBet.userId,
+        betType: currentBet.betType,
+        matchedAmount: matchAmount
+      });
+      dbUpdates.push({
+        userId: oppositeBet.userId,
+        betType: oppositeBet.betType,
+        matchedAmount: matchAmount
+      });
 
       // Update remaining amounts
       currentBet.amount -= matchAmount;
@@ -278,9 +302,67 @@ matchBets(betType) {
     }
   }
 
+  // Update database records
+  await this.updateBetRecordsInDatabase(dbUpdates);
+
   // Update the game state with the new bet structure
   this.updateGameStateAfterMatching(betType, currentBets);
   this.updateGameStateAfterMatching(oppositeType, oppositeBets);
+}
+
+async updateBetRecordsInDatabase(updates) {
+  const transaction = await sequelize.transaction();
+  
+  try {
+    // Group updates by user and bet type
+    const groupedUpdates = new Map();
+    
+    for (const update of updates) {
+      const key = `${update.userId}-${update.betType}`;
+      if (!groupedUpdates.has(key)) {
+        groupedUpdates.set(key, {
+          userId: update.userId,
+          betType: update.betType,
+          totalMatchedAmount: 0
+        });
+      }
+      groupedUpdates.get(key).totalMatchedAmount += update.matchedAmount;
+    }
+
+    // Update each bet record
+    for (const [_, update] of groupedUpdates) {
+      // Find the bet record
+      const betRecord = await Bet.findOne({
+        where: {
+          userId: update.userId,
+          gameId: this.currentGame.id,
+          betType: update.betType
+        },
+        transaction
+      });
+
+      if (betRecord) {
+        const newMatchedAmount = (betRecord.matchedAmount || 0) + update.totalMatchedAmount;
+        const isFullyMatched = newMatchedAmount >= betRecord.amount;
+
+        await Bet.update({
+          matched: isFullyMatched,
+          matchedAmount: newMatchedAmount
+        }, {
+          where: {
+            id: betRecord.id
+          },
+          transaction
+        });
+      }
+    }
+
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    console.error('Error updating bet records:', error);
+    throw error;
+  }
 }
 
 createMatch(bet1, bet2, matchAmount) {
