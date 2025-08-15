@@ -229,6 +229,7 @@ class GameService extends EventEmitter {
   }
 
 async matchBets(betType) {
+  console.log(`matchBets called for ${betType}`);
   const oppositeType = betType === 'red' ? 'black' : 'red';
   
   // Get all unmatched bets and convert to a workable format
@@ -252,6 +253,9 @@ async matchBets(betType) {
       betType: oppositeType
     }));
 
+  console.log(`Current bets (${betType}):`, currentBets);
+  console.log(`Opposite bets (${oppositeType}):`, oppositeBets);
+
   // Sort bets by amount (smallest first for optimal matching)
   currentBets.sort((a, b) => a.amount - b.amount);
   oppositeBets.sort((a, b) => a.amount - b.amount);
@@ -270,8 +274,10 @@ async matchBets(betType) {
       // Determine the smaller amount to match
       const matchAmount = Math.min(currentBet.amount, oppositeBet.amount);
 
+      console.log(`Matching ${matchAmount} between user ${currentBet.userId} (${betType}) and user ${oppositeBet.userId} (${oppositeType})`);
+
       // Create the match
-      await this.createMatch(currentBet, oppositeBet, matchAmount);
+      this.createMatch(currentBet, oppositeBet, matchAmount);
 
       // Track database updates
       dbUpdates.push({
@@ -302,8 +308,12 @@ async matchBets(betType) {
     }
   }
 
-  // Update database records
-  await this.updateBetRecordsInDatabase(dbUpdates);
+  console.log('Database updates to perform:', dbUpdates);
+
+  // Update database records ONLY if there are updates to make
+  if (dbUpdates.length > 0) {
+    await this.updateBetRecordsInDatabase(dbUpdates);
+  }
 
   // Update the game state with the new bet structure
   this.updateGameStateAfterMatching(betType, currentBets);
@@ -311,6 +321,7 @@ async matchBets(betType) {
 }
 
 async updateBetRecordsInDatabase(updates) {
+  console.log('updateBetRecordsInDatabase called with updates:', updates);
   const transaction = await sequelize.transaction();
   
   try {
@@ -329,6 +340,8 @@ async updateBetRecordsInDatabase(updates) {
       groupedUpdates.get(key).totalMatchedAmount += update.matchedAmount;
     }
 
+    console.log('Grouped updates:', Array.from(groupedUpdates.values()));
+
     // Update each bet record
     for (const [_, update] of groupedUpdates) {
       // Find the bet record
@@ -341,11 +354,21 @@ async updateBetRecordsInDatabase(updates) {
         transaction
       });
 
-      if (betRecord) {
-        const newMatchedAmount = (betRecord.matchedAmount || 0) + update.totalMatchedAmount;
-        const isFullyMatched = newMatchedAmount >= betRecord.amount;
+      console.log('Found bet record:', betRecord ? betRecord.toJSON() : 'null');
 
-        await Bet.update({
+      if (betRecord) {
+        // Convert strings to numbers properly
+        const currentMatchedAmount = parseFloat(betRecord.matchedAmount) || 0;
+        const totalMatchedAmount = parseFloat(update.totalMatchedAmount);
+        const betAmount = parseFloat(betRecord.amount);
+        
+        const newMatchedAmount = currentMatchedAmount + totalMatchedAmount;
+        const isFullyMatched = newMatchedAmount >= betAmount;
+
+        console.log(`Current: ${currentMatchedAmount}, Additional: ${totalMatchedAmount}, Total Bet: ${betAmount}`);
+        console.log(`Updating bet ${betRecord.id}: matched=${isFullyMatched}, matchedAmount=${newMatchedAmount}`);
+
+        const [affectedRows] = await Bet.update({
           matched: isFullyMatched,
           matchedAmount: newMatchedAmount
         }, {
@@ -354,10 +377,19 @@ async updateBetRecordsInDatabase(updates) {
           },
           transaction
         });
+
+        console.log(`Update affected ${affectedRows} rows`);
+
+        // Verify the update
+        const updatedRecord = await Bet.findByPk(betRecord.id, { transaction });
+        console.log('Updated record:', updatedRecord ? updatedRecord.toJSON() : 'null');
+      } else {
+        console.log(`No bet record found for userId: ${update.userId}, gameId: ${this.currentGame.id}, betType: ${update.betType}`);
       }
     }
 
     await transaction.commit();
+    console.log('Transaction committed successfully');
   } catch (error) {
     await transaction.rollback();
     console.error('Error updating bet records:', error);

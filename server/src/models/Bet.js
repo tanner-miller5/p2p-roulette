@@ -27,8 +27,8 @@ module.exports = (sequelize) => {
       }
     },
     amount: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
     },
     betType: {
       type: DataTypes.ENUM('red', 'black'),
