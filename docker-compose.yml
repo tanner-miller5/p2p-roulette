@@ -18,19 +18,42 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7
-    container_name: p2p_roulette_redis
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: p2p_roulette_server
     ports:
-      - "6379:6379"
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/p2p_roulette
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
-      - redis_data:/data
+      - ./server:/app/server
+      - /app/server/node_modules
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: p2p_roulette_client
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+    depends_on:
+      - server
+    volumes:
+      - ./client:/app/client
+      - /app/client/node_modules
 
 volumes:
   postgres_data:
-  redis_data:

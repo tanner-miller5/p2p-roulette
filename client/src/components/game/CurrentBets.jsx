@@ -4,7 +4,7 @@ import './CurrentBets.css';
 
 const CurrentBets = () => {
   const gameState = useSelector((state) => state.game);
-  const { bets, currentBets, status } = gameState || {};
+  const { bets, status } = gameState || {};
 
   const getTotalBetAmount = (betType) => {
     if (!bets || !bets[betType]) return 0;

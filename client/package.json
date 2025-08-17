@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@p2p-roulette/shared": "1.0.0",
     "@reduxjs/toolkit": "^2.0.1",
     "axios": "^1.10.0",
     "react": "^19.1.0",
@@ -11,7 +10,8 @@
     "react-redux": "^9.0.4",
     "react-router-dom": "^6.21.1",
     "react-scripts": "5.0.1",
-    "socket.io-client": "^4.7.2"
+    "socket.io-client": "^4.7.2",
+    "ajv": "^8.12.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -42,6 +42,5 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "identity-obj-proxy": "^3.0.0",
     "jest-environment-jsdom": "^29.7.0"
-  },
-  "proxy": "http://localhost:3001"
+  }
 }
