@@ -41,3 +41,7 @@ async function initializeDatabase() {
 
 // Run initialization
 initializeDatabase();
+
+module.exports = {
+    initializeDatabase
+}

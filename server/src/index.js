@@ -4,6 +4,7 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const { initializeSocket } = require('./socket');
 const { setIo } = require('./services/gameService');
+const { initializeDatabase } = require('./scripts/initDb');
 const walletRoutes = require('./routes/walletRoutes');
 const userRoutes = require('./routes/userRoutes');
 const gameRoutes = require('./routes/gameRoutes');
@@ -37,9 +38,25 @@ app.use('/api/wallet', walletRoutes);
 initializeSocket(io);
 setIo(io);
 
-const PORT = process.env.PORT || 3001;
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Start server with database initialization
+const startServer = async () => {
+    try {
+        // Initialize database first
+        await initializeDatabase();
+        console.log('Database initialized successfully');
+
+        const PORT = process.env.PORT || 3001;
+        httpServer.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+};
+
+// Start the server
+startServer();
+
 
 module.exports = { app, httpServer, io };
