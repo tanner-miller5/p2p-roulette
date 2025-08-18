@@ -73,31 +73,9 @@ const initializeDatabase = async () => {
     await sequelize.authenticate();
     console.log('Database connection established.');
 
-    await sequelize.sync({ force: process.env.NODE_ENV === 'development' });
+    await sequelize.sync({ alter: true });
     console.log('Database tables synchronized.');
 
-    // Create system user if it doesn't exist
-    const systemUser = await User.findOne({ where: { username: 'system' } });
-    
-    if (!systemUser) {
-      const hashedPassword = await bcrypt.hash(uuidv4(), 10);
-      const systemUserId = uuidv4();
-
-      const newSystemUser = await User.create({
-        id: systemUserId,
-        username: 'system',
-        email: 'system@p2p-roulette.com',
-        password: hashedPassword,
-        role: 'SYSTEM'
-      });
-
-      await Wallet.create({
-        userId: newSystemUser.id,
-        balance: 1000000
-      });
-
-      console.log('System user created with ID:', newSystemUser.id);
-    }
   } catch (error) {
     console.error('Database initialization error:', error);
     throw error;

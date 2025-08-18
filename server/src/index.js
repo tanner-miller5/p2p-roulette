@@ -4,7 +4,7 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const { initializeSocket } = require('./socket');
 const { setIo } = require('./services/gameService');
-const { initializeDatabase } = require('./scripts/initDb');
+const { initializeDatabase } = require('./models');
 const walletRoutes = require('./routes/walletRoutes');
 const userRoutes = require('./routes/userRoutes');
 const gameRoutes = require('./routes/gameRoutes');
@@ -14,17 +14,20 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
-    allowedHeaders: ["Authorization"]
+    allowedHeaders: ["Authorization", "Content-Type"]
   }
 });
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
-  credentials: true
+    origin: "*", // Accept any origin
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Authorization", "Content-Type"]
+
 }));
 app.use(express.json());
 
